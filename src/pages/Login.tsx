@@ -1,20 +1,23 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Package2, Mail, Lock, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [role, setRole] = useState("admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login - will be connected to Supabase
-    console.log({ role, email, password });
+    // For now, navigate to dashboard (will be connected to real auth later)
+    toast.success("Login successful! Redirecting...");
+    navigate("/dashboard");
   };
 
   return (
