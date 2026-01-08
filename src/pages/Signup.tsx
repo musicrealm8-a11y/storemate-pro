@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Package2, Store, User, Mail, Lock, Phone, ArrowLeft, MapPin } from "lucide-react";
+import { toast } from "sonner";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     storeName: "",
     storeLocation: "",
@@ -21,8 +23,9 @@ const Signup = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle signup - will be connected to Supabase
-    console.log(formData);
+    // For now, navigate to dashboard (will be connected to real auth later)
+    toast.success("Store created successfully! Redirecting...");
+    navigate("/dashboard");
   };
 
   return (
