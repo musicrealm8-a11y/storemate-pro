@@ -9,7 +9,8 @@ import {
   DollarSign,
   MoreHorizontal,
   Eye,
-  Mail
+  Mail,
+  AlertCircle
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ const mockClients = [
     phone: "+1 234 567 890", 
     totalPurchases: 24, 
     totalSpent: 15600,
+    totalOwed: 1200,
     lastPurchase: "2024-01-15"
   },
   { 
@@ -35,6 +37,7 @@ const mockClients = [
     phone: "+1 234 567 891", 
     totalPurchases: 18, 
     totalSpent: 12400,
+    totalOwed: 0,
     lastPurchase: "2024-01-14"
   },
   { 
@@ -44,6 +47,7 @@ const mockClients = [
     phone: "+1 234 567 892", 
     totalPurchases: 32, 
     totalSpent: 28900,
+    totalOwed: 3500,
     lastPurchase: "2024-01-13"
   },
   { 
@@ -53,6 +57,7 @@ const mockClients = [
     phone: "+1 234 567 893", 
     totalPurchases: 8, 
     totalSpent: 4200,
+    totalOwed: 800,
     lastPurchase: "2024-01-10"
   },
   { 
@@ -62,6 +67,7 @@ const mockClients = [
     phone: "+1 234 567 894", 
     totalPurchases: 45, 
     totalSpent: 52300,
+    totalOwed: 0,
     lastPurchase: "2024-01-15"
   },
 ];
@@ -77,12 +83,13 @@ const Clients = () => {
 
   const totalClients = mockClients.length;
   const totalRevenue = mockClients.reduce((sum, c) => sum + c.totalSpent, 0);
+  const totalOwed = mockClients.reduce((sum, c) => sum + c.totalOwed, 0);
   const avgSpending = totalRevenue / totalClients;
 
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="stat-card">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
@@ -102,6 +109,17 @@ const Clients = () => {
             <div>
               <p className="text-2xl font-bold text-foreground">${totalRevenue.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total Revenue</p>
+            </div>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+              <AlertCircle className="h-5 w-5 text-warning" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">${totalOwed.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Total Owed</p>
             </div>
           </div>
         </div>
@@ -142,6 +160,7 @@ const Clients = () => {
                 <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Contact</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Purchases</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Total Spent</th>
+                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Total Owed</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Last Purchase</th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground"></th>
               </tr>
@@ -174,6 +193,13 @@ const Clients = () => {
                   <td className="py-4 px-4 text-right text-foreground">{client.totalPurchases}</td>
                   <td className="py-4 px-4 text-right font-semibold text-foreground">
                     ${client.totalSpent.toLocaleString()}
+                  </td>
+                  <td className="py-4 px-4 text-right">
+                    {client.totalOwed > 0 ? (
+                      <span className="font-semibold text-warning">${client.totalOwed.toLocaleString()}</span>
+                    ) : (
+                      <span className="text-muted-foreground">$0</span>
+                    )}
                   </td>
                   <td className="py-4 px-4 text-right text-muted-foreground">{client.lastPurchase}</td>
                   <td className="py-4 px-4 text-right">
