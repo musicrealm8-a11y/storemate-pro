@@ -3,13 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
   ShoppingCart, 
   Search, 
   Plus, 
@@ -17,8 +10,17 @@ import {
   Trash2,
   CreditCard,
   Banknote,
-  Smartphone
+  Smartphone,
+  Package
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface CartItem {
   id: string;
@@ -28,11 +30,14 @@ interface CartItem {
 }
 
 const mockProducts = [
-  { id: "1", name: "iPhone 15 Pro", price: 1099, stock: 25 },
-  { id: "2", name: "MacBook Air M3", price: 1299, stock: 15 },
-  { id: "3", name: "AirPods Pro 2", price: 249, stock: 50 },
-  { id: "4", name: "iPad Pro 12.9", price: 1199, stock: 12 },
-  { id: "5", name: "Apple Watch Ultra", price: 799, stock: 20 },
+  { id: "1", name: "iPhone 15 Pro", price: 1099, stock: 25, category: "Phones" },
+  { id: "2", name: "MacBook Air M3", price: 1299, stock: 15, category: "Laptops" },
+  { id: "3", name: "AirPods Pro 2", price: 249, stock: 50, category: "Accessories" },
+  { id: "4", name: "iPad Pro 12.9", price: 1199, stock: 12, category: "Tablets" },
+  { id: "5", name: "Apple Watch Ultra", price: 799, stock: 20, category: "Wearables" },
+  { id: "6", name: "Magic Keyboard", price: 299, stock: 8, category: "Accessories" },
+  { id: "7", name: "USB-C Cable", price: 19, stock: 100, category: "Accessories" },
+  { id: "8", name: "iPhone Case", price: 49, stock: 75, category: "Accessories" },
 ];
 
 const Sales = () => {
@@ -75,8 +80,7 @@ const Sales = () => {
   };
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+  const total = subtotal;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -97,24 +101,51 @@ const Sales = () => {
             />
           </div>
 
-          {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {filteredProducts.map(product => (
-              <button
-                key={product.id}
-                onClick={() => addToCart(product)}
-                className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-accent/50 hover:bg-accent/5 transition-all text-left"
-              >
-                <div>
-                  <p className="font-medium text-foreground">{product.name}</p>
-                  <p className="text-sm text-muted-foreground">{product.stock} in stock</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-foreground">${product.price}</p>
-                  <Plus className="h-4 w-4 text-accent ml-auto" />
-                </div>
-              </button>
-            ))}
+          {/* Product Table */}
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="text-right">Stock</TableHead>
+                  <TableHead className="w-[80px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProducts.map(product => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center">
+                          <Package className="h-4 w-4 text-accent" />
+                        </div>
+                        <span className="font-medium text-foreground">{product.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{product.category}</TableCell>
+                    <TableCell className="text-right font-medium">${product.price}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">{product.stock}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => addToCart(product)}
+                        disabled={product.stock === 0}
+                      >
+                        <Plus className="h-4 w-4 text-accent" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                No products found
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -168,15 +199,7 @@ const Sales = () => {
           {/* Totals */}
           {cart.length > 0 && (
             <div className="mt-4 pt-4 border-t border-border space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-foreground">${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Tax (10%)</span>
-                <span className="text-foreground">${tax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-semibold pt-2 border-t border-border">
+              <div className="flex justify-between text-lg font-semibold pt-2">
                 <span className="text-foreground">Total</span>
                 <span className="text-accent">${total.toFixed(2)}</span>
               </div>

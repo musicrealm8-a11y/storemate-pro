@@ -17,12 +17,12 @@ const Navbar = () => {
           <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Features
           </a>
-          <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Pricing
-          </a>
-          <a href="#about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          </Link>
+          <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             About
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center gap-3">
