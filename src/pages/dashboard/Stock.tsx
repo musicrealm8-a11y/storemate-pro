@@ -1,13 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Search, 
   MoreHorizontal,
-  Box,
   Edit,
   Trash2,
-  Eye
+  TrendingUp,
+  Package,
+  AlertTriangle
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,25 +26,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const mockProducts = [
-  { id: "1", name: "iPhone 15 Pro", category: "Phones", price: 1099, stock: 25, status: "active" },
-  { id: "2", name: "MacBook Air M3", category: "Laptops", price: 1299, stock: 15, status: "active" },
-  { id: "3", name: "AirPods Pro 2", category: "Accessories", price: 249, stock: 50, status: "active" },
-  { id: "4", name: "iPad Pro 12.9", category: "Tablets", price: 1199, stock: 12, status: "active" },
-  { id: "5", name: "Apple Watch Ultra", category: "Wearables", price: 799, stock: 20, status: "active" },
-  { id: "6", name: "iPhone 15", category: "Phones", price: 799, stock: 0, status: "out_of_stock" },
-  { id: "7", name: "Magic Keyboard", category: "Accessories", price: 299, stock: 8, status: "low_stock" },
-  { id: "8", name: "USB-C Cable", category: "Accessories", price: 19, stock: 100, status: "active" },
-  { id: "9", name: "iPhone Case", category: "Accessories", price: 49, stock: 75, status: "active" },
+const mockStock = [
+  { id: "1", name: "iPhone 15 Pro", category: "Phones", unitPrice: 1099, quantity: 25, specification: "256GB Black", totalValue: 27475, status: "in_stock" },
+  { id: "2", name: "MacBook Air M3", category: "Laptops", unitPrice: 1299, quantity: 15, specification: "13-inch Silver", totalValue: 19485, status: "in_stock" },
+  { id: "3", name: "AirPods Pro 2", category: "Accessories", unitPrice: 249, quantity: 50, specification: "With MagSafe Case", totalValue: 12450, status: "in_stock" },
+  { id: "4", name: "iPad Pro 12.9", category: "Tablets", unitPrice: 1199, quantity: 12, specification: "WiFi + Cellular", totalValue: 14388, status: "in_stock" },
+  { id: "5", name: "Apple Watch Ultra", category: "Wearables", unitPrice: 799, quantity: 20, specification: "Alpine Loop", totalValue: 15980, status: "in_stock" },
+  { id: "6", name: "iPhone 15", category: "Phones", unitPrice: 799, quantity: 0, specification: "128GB Blue", totalValue: 0, status: "out_of_stock" },
+  { id: "7", name: "Magic Keyboard", category: "Accessories", unitPrice: 299, quantity: 8, specification: "Touch ID", totalValue: 2392, status: "low_stock" },
+  { id: "8", name: "USB-C Cables", category: "Accessories", unitPrice: 19, quantity: 5, specification: "2m Length", totalValue: 95, status: "low_stock" },
 ];
 
 const categories = ["All", "Phones", "Laptops", "Tablets", "Accessories", "Wearables"];
 
-const Products = () => {
+const Stock = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const filteredProducts = mockProducts.filter(p => {
+  const filteredStock = mockStock.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -50,15 +52,24 @@ const Products = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "active":
+      case "in_stock":
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">In Stock</span>;
       case "low_stock":
-        return <span className="px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">Low Stock</span>;
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">
+            <AlertTriangle className="h-3 w-3" />
+            Low Stock
+          </span>
+        );
       case "out_of_stock":
         return <span className="px-2 py-1 text-xs font-medium rounded-full bg-destructive/10 text-destructive">Out of Stock</span>;
       default:
         return null;
     }
+  };
+
+  const handleRowClick = (productId: string) => {
+    navigate(`/dashboard/stock/${productId}`);
   };
 
   return (
@@ -70,7 +81,7 @@ const Products = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search products..."
+              placeholder="Search stock..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -92,35 +103,43 @@ const Products = () => {
         </div>
       </div>
 
-      {/* Products Table */}
+      {/* Stock Table */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Product</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Stock</TableHead>
+              <TableHead>Specification</TableHead>
+              <TableHead className="text-right">Unit Price</TableHead>
+              <TableHead className="text-right">Quantity</TableHead>
+              <TableHead className="text-right">Total Value</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProducts.map(product => (
-              <TableRow key={product.id}>
+            {filteredStock.map((item) => (
+              <TableRow 
+                key={item.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleRowClick(item.id)}
+              >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center">
-                      <Box className="h-4 w-4 text-accent" />
+                      <Package className="h-4 w-4 text-accent" />
                     </div>
-                    <span className="font-medium text-foreground">{product.name}</span>
+                    <span className="font-medium text-foreground">{item.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{product.category}</TableCell>
-                <TableCell className="text-right font-medium">${product.price}</TableCell>
-                <TableCell className="text-right">{product.stock} units</TableCell>
-                <TableCell>{getStatusBadge(product.status)}</TableCell>
-                <TableCell>
+                <TableCell className="text-muted-foreground">{item.category}</TableCell>
+                <TableCell className="text-muted-foreground">{item.specification}</TableCell>
+                <TableCell className="text-right font-medium">${item.unitPrice}</TableCell>
+                <TableCell className="text-right">{item.quantity}</TableCell>
+                <TableCell className="text-right font-medium">${item.totalValue.toLocaleString()}</TableCell>
+                <TableCell>{getStatusBadge(item.status)}</TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -128,9 +147,9 @@ const Products = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View
+                      <DropdownMenuItem onClick={() => handleRowClick(item.id)}>
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        View Sales
                       </DropdownMenuItem>
                       <DropdownMenuItem>
                         <Edit className="h-4 w-4 mr-2" />
@@ -148,10 +167,10 @@ const Products = () => {
           </TableBody>
         </Table>
 
-        {filteredProducts.length === 0 && (
+        {filteredStock.length === 0 && (
           <div className="text-center py-12">
-            <Box className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No products found</p>
+            <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">No stock items found</p>
           </div>
         )}
       </div>
@@ -159,4 +178,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Stock;
