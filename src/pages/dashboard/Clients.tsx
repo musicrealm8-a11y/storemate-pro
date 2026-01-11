@@ -10,7 +10,9 @@ import {
   MoreHorizontal,
   Eye,
   Mail,
-  AlertCircle
+  AlertCircle,
+  TrendingUp,
+  Filter
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -72,19 +74,40 @@ const mockClients = [
   },
 ];
 
+type ClientFilter = "all" | "top-spending" | "owing";
+
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [clientFilter, setClientFilter] = useState<ClientFilter>("all");
 
-  const filteredClients = mockClients.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.phone.includes(searchTerm)
-  );
+  const getFilteredClients = () => {
+    let filtered = mockClients.filter(c => 
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.phone.includes(searchTerm)
+    );
+
+    switch (clientFilter) {
+      case "top-spending":
+        filtered = [...filtered].sort((a, b) => b.totalSpent - a.totalSpent);
+        break;
+      case "owing":
+        filtered = filtered.filter(c => c.totalOwed > 0).sort((a, b) => b.totalOwed - a.totalOwed);
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  };
+
+  const filteredClients = getFilteredClients();
 
   const totalClients = mockClients.length;
   const totalRevenue = mockClients.reduce((sum, c) => sum + c.totalSpent, 0);
   const totalOwed = mockClients.reduce((sum, c) => sum + c.totalOwed, 0);
   const avgSpending = totalRevenue / totalClients;
+  const clientsOwing = mockClients.filter(c => c.totalOwed > 0).length;
 
   return (
     <div className="space-y-6">
@@ -119,7 +142,7 @@ const Clients = () => {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">${totalOwed.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">Total Owed</p>
+              <p className="text-sm text-muted-foreground">Total Owed ({clientsOwing} clients)</p>
             </div>
           </div>
         </div>
@@ -136,17 +159,45 @@ const Clients = () => {
         </div>
       </div>
 
-      {/* Search */}
+      {/* Search & Filters */}
       <div className="bg-card rounded-xl border border-border p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search clients by name, email, or phone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search clients by name, email, or phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={clientFilter === "all" ? "accent" : "outline"}
+              size="sm"
+              onClick={() => setClientFilter("all")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              All Clients
+            </Button>
+            <Button
+              variant={clientFilter === "top-spending" ? "accent" : "outline"}
+              size="sm"
+              onClick={() => setClientFilter("top-spending")}
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Top Spending
+            </Button>
+            <Button
+              variant={clientFilter === "owing" ? "accent" : "outline"}
+              size="sm"
+              onClick={() => setClientFilter("owing")}
+            >
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Owing Money
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -166,14 +217,21 @@ const Clients = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredClients.map((client) => (
+              {filteredClients.map((client, index) => (
                 <tr key={client.id} className="border-t border-border hover:bg-muted/30 transition-colors">
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
-                        <span className="text-sm font-medium text-accent">
-                          {client.name.split(' ').map(n => n[0]).join('')}
-                        </span>
+                      <div className="relative">
+                        <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
+                          <span className="text-sm font-medium text-accent">
+                            {client.name.split(' ').map(n => n[0]).join('')}
+                          </span>
+                        </div>
+                        {clientFilter === "top-spending" && index < 3 && (
+                          <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-warning flex items-center justify-center">
+                            <span className="text-xs font-bold text-warning-foreground">#{index + 1}</span>
+                          </div>
+                        )}
                       </div>
                       <span className="font-medium text-foreground">{client.name}</span>
                     </div>
@@ -218,6 +276,12 @@ const Clients = () => {
                           <ShoppingBag className="h-4 w-4 mr-2" />
                           Purchase History
                         </DropdownMenuItem>
+                        {client.totalOwed > 0 && (
+                          <DropdownMenuItem>
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            Record Payment
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
@@ -230,7 +294,9 @@ const Clients = () => {
         {filteredClients.length === 0 && (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No clients found</p>
+            <p className="text-muted-foreground">
+              {clientFilter === "owing" ? "No clients with outstanding debt" : "No clients found"}
+            </p>
           </div>
         )}
       </div>
