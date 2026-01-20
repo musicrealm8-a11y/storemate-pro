@@ -12,7 +12,9 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
-  UserCircle
+  UserCircle,
+  PackageCheck,
+  BarChart3
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,7 @@ const navigation = [
   { name: "Sales", href: "/dashboard/sales", icon: ShoppingCart },
   { name: "Products", href: "/dashboard/products", icon: Box },
   { name: "Stock", href: "/dashboard/stock", icon: Layers },
+  { name: "Consignments", href: "/dashboard/consignments", icon: PackageCheck },
   { name: "Clients", href: "/dashboard/clients", icon: Users },
   { name: "Reports", href: "/dashboard/reports", icon: FileText },
   { name: "Income & Expenses", href: "/dashboard/finances", icon: Wallet },
@@ -29,6 +32,7 @@ const navigation = [
 
 const adminNav = [
   { name: "User Management", href: "/dashboard/users", icon: UserCircle },
+  { name: "Admin Portal", href: "/admin", icon: BarChart3 },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -126,9 +130,12 @@ const Sidebar = ({ isAdmin = true }: SidebarProps) => {
       </nav>
 
       {/* User section */}
-      <div className="p-4 border-t border-sidebar-border">
-        <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
-          <div className="h-9 w-9 rounded-full bg-sidebar-accent flex items-center justify-center flex-shrink-0">
+      <div className="p-2 border-t border-sidebar-border">
+        <div className={cn(
+          "flex items-center gap-3 px-3 py-2",
+          collapsed && "justify-center"
+        )}>
+          <div className="h-8 w-8 rounded-full bg-sidebar-accent flex items-center justify-center">
             <span className="text-sm font-medium text-sidebar-foreground">JD</span>
           </div>
           {!collapsed && (
@@ -137,16 +144,17 @@ const Sidebar = ({ isAdmin = true }: SidebarProps) => {
               <p className="text-xs text-sidebar-foreground/60 truncate">Admin</p>
             </div>
           )}
-          {!collapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent flex-shrink-0"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          )}
         </div>
+        <Link
+          to="/login"
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mt-1",
+            "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+          )}
+        >
+          <LogOut className="h-5 w-5 flex-shrink-0" />
+          {!collapsed && <span>Sign out</span>}
+        </Link>
       </div>
     </aside>
   );
